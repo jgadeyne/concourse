@@ -3175,4 +3175,31 @@ var _ = DescribeTable("Input resolving",
 			},
 		},
 	}),
+
+	FEntry("if the chosen version for an input with passed constraints does not exist, it will not select that version", Example{
+		DB: DB{
+			BuildInputs: []DBRow{
+				{Job: "another-job", BuildID: 100, Resource: "resource-x", Version: "rxv1", CheckOrder: 1},
+				{Job: "another-job", BuildID: 101, Resource: "resource-x", Version: "rxv2", CheckOrder: 2, DoNotInsertVersion: true},
+			},
+			Resources: []DBRow{
+				{Resource: "resource-x", Version: "rxv1", CheckOrder: 1},
+			},
+		},
+
+		Inputs: Inputs{
+			{
+				Name:     "resource-x",
+				Resource: "resource-x",
+				Passed:   []string{"another-job"},
+			},
+		},
+
+		Result: Result{
+			OK: true,
+			Values: map[string]string{
+				"resource-x": "rxv1",
+			},
+		},
+	}),
 )
